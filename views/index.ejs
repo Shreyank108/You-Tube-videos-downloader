@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Download YouTube</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+  </head>
+  <body>
+    <div id="main">
+      <div id="layer">
+        <h1>Mimico 🐥</h1>
+        <p><b>Just Us Things</b></p>
+        
+       <form id="search-form">
+          <input type="text" placeholder="Enter YouTube Link" name="link" required />
+          <button type="submit">
+            <img src="https://cdn-icons-png.flaticon.com/512/954/954591.png" alt="" />
+          </button>
+        </form>
+        <div id="vid" style="display:none;">
+          <img id="thumbnail" src="" alt="" />
+          <p id="title"><b>Title</b></p>
+        </div>
+        <div id="quality" style="display:none;">
+          <div class="q1">
+            <p><b>720p</b></p>
+            <button data-quality="720p">
+              <img src="https://archive.org/download/download-png/dl.png" alt="" />
+            </button>
+          </div>
+          <div class="q1">
+            <p><b>480p</b></p>
+            <button data-quality="480p">
+              <img src="https://archive.org/download/download-png/dl.png" alt="" />
+            </button>
+          </div>
+          <div class="q1">
+            <p><b>360p</b></p>
+            <button data-quality="360p">
+              <img src="https://archive.org/download/download-png/dl.png" alt="" />
+            </button>
+          </div>
+        </div>
+        <p id="myintro">Made with ❤️ by -<span>Shreyank Agrawal</span></p>
+      </div>
+    </div>
+    <script>
+      document.getElementById('search-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const link = event.target.link.value;
+        
+        const response = await fetch('/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ link })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('thumbnail').src = data.thumbnail;
+          document.getElementById('title').innerText = data.title;
+          document.getElementById('title').style.fontSize="30px"
+          document.getElementById('vid').style.display = 'block';
+          document.getElementById('quality').style.display = 'block';
+
+          document.querySelectorAll('#quality button').forEach(button => {
+            button.onclick = async () => {
+              const quality = button.getAttribute('data-quality');
+              const downloadForm = document.createElement('form');
+              downloadForm.action = '/download';
+              downloadForm.method = 'post';
+              downloadForm.innerHTML = `
+                <input type="hidden" name="link" value="${data.videoURL}" />
+                <input type="hidden" name="quality" value="${quality}" />
+              `;
+              document.body.appendChild(downloadForm);
+              downloadForm.submit();
+            };
+            document.querySelector("#myintro").style.display="none"
+          });
+        } else {
+          alert('Invalid YouTube URL');
+        }
+      });
+    </script>
+  </body>
+</html>
