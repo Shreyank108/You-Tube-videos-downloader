@@ -44,15 +44,15 @@ router.post('/download', async (req, res) => {
     const title = info.videoDetails.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
     res.header('Content-Disposition', `attachment; filename="${title}.mp4"`);
+
     ytdl(videoURL, {
       format: 'mp4',
-      filter: (format) => format.container === 'mp4' && format.qualityLabel === quality
+      quality: 'highestvideo',
+      filter: (format) => format.container === 'mp4' && format.hasAudio && format.qualityLabel === quality
     }).pipe(res);
   } catch (error) {
     res.status(500).send('Error downloading video');
   }
 });
-
-
 
 module.exports = router;
